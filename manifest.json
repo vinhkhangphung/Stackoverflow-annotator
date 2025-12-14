@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "StackOverflow Good Answer Annotator",
+  "version": "1.0",
+  "description": "Annotates StackOverflow search results if a question has an answer with >50 upvotes.",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://api.stackexchange.com/*",
+    "https://stackoverflow.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://www.google.com/*"],
+      "js": ["content.js"]
+    }
+  ]
+}
