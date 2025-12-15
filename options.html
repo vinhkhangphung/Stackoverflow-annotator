@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StackOverflow Annotator Options</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 80px;
+            max-width: 600px;
+            margin: 0 auto;
+            background: #2c3e36;
+        }
+        .container {
+            background: #95c9a8;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #2c3e36;
+            margin-top: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e36;
+            font-size: 14px;
+        }
+        input[type="text"],
+        input[type="password"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #2c3e36;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+            background: white;
+            font-family: monospace;
+        }
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #1a2520;
+            box-shadow: 0 0 0 3px rgba(44, 62, 54, 0.1);
+        }
+        button {
+            background: #2c3e36;
+            color: #95c9a8;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        button:hover {
+            background: #1a2520;
+        }
+        button:active {
+            background: #0f1612;
+        }
+        .help-text {
+            font-size: 13px;
+            color: #2c3e36;
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+        .help-text a {
+            color: #1a2520;
+            text-decoration: underline;
+            font-weight: 500;
+        }
+        .help-text a:hover {
+            color: #0f1612;
+        }
+        .status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+            font-weight: 500;
+        }
+        .status.success {
+            background: #2c3e36;
+            color: #95c9a8;
+            border: 2px solid #1a2520;
+        }
+        .status.error {
+            background: #d4a5a0;
+            color: #4a3330;
+            border: 2px solid #4a3330;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>StackOverflow Annotator Settings</h1>
+        
+        <div class="form-group">
+            <label for="apiKey">Stack Exchange API Key (Optional)</label>
+            <input type="password" id="apiKey" placeholder="Enter your API key">
+            <div class="help-text">
+                Adding an API key increases your rate limit from 300 to 10,000 requests per day.
+                <br>
+                <a href="https://stackapps.com/apps/oauth/register" target="_blank">Register for a free API key here</a>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="minUpvotes">Minimum Upvotes for "Good Answer"</label>
+            <input type="number" id="minUpvotes" placeholder="50" min="1" step="1">
+            <div class="help-text">
+                Answers must have at least this many upvotes to be considered "good". Default: 50
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="cacheExpiryDays">Cache Expiry (Days)</label>
+            <input type="number" id="cacheExpiryDays" placeholder="7" min="1" step="1">
+            <div class="help-text">
+                How long to cache question data before refreshing. Default: 7 days
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="rateLimitDelay">API Rate Limit Delay (milliseconds)</label>
+            <input type="number" id="rateLimitDelay" placeholder="150" min="0" step="10">
+            <div class="help-text">
+                Delay between API requests to avoid rate limiting. Default: 150ms
+            </div>
+        </div>
+        
+        <button id="save">Save Settings</button>
+        
+        <div id="status" class="status"></div>
+    </div>
+    
+    <script src="options.js"></script>
+</body>
+</html>

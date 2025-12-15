@@ -10,10 +10,15 @@ A Chrome extension that annotates StackOverflow links in Google search results, 
 - 🎨 **Subtle Design**: Uses muted colors that won't distract from your reading
 - ⚡ **Fast & Lightweight**: Minimal performance impact with intelligent caching
 
-## Screenshot
+## Screenshots
 
+### Search Results Annotation
 <!-- Add screenshot here -->
 ![Extension Preview](assets/preview.png)
+
+### Options Page
+<!-- Add screenshot here -->
+![Options Page](assets/options.png)
 
 ## How It Works
 
@@ -44,6 +49,31 @@ Since this is an unpacked extension, follow these steps to install it in Chrome:
 1. Simply perform a Google search that includes StackOverflow results
 2. The extension will automatically annotate StackOverflow links with quality indicators
 3. Use these badges to quickly identify which questions have helpful, well-received answers
+
+## Configuration
+
+Access the options page by right-clicking the extension icon and selecting "Options", or navigate to [`chrome://extensions/`](chrome://extensions) and click "Details" then "Extension options".
+
+### Available Settings
+
+- **Stack Exchange API Key** (Optional)
+  - Adding an API key increases your rate limit from 300 to 10,000 requests per day
+  - [Register for a free API key here](https://stackapps.com/apps/oauth/register)
+  - The key is masked after saving for security
+
+- **Minimum Upvotes for "Good Answer"** (Default: 50)
+  - Customize the threshold for what counts as a high-quality answer
+  - When changed, cached entries are automatically re-evaluated
+
+- **Cache Expiry** (Default: 7 days)
+  - How long to cache question data before refreshing from the API
+  - Helps reduce API calls and improve performance
+
+- **API Rate Limit Delay** (Default: 150ms)
+  - Delay between API requests to avoid rate limiting
+  - Lower values = faster processing but higher risk of hitting rate limits
+
+All settings are synced across your Chrome browsers automatically.
 
 ## Technical Details
 
