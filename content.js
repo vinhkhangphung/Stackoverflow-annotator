@@ -1,12 +1,41 @@
-console.log('StackOverflow annotator loaded');
-
 (async function () {
     const API_BASE = "https://api.stackexchange.com/2.3";
     const SITE = "stackoverflow";
-    const MIN_UPVOTES = 50;
-    const CACHE_EXPIRY_DAYS = 7;
     const CACHE_KEY_PREFIX = "so_q_";
-    const RATE_LIMIT_DELAY_MS = 150;
+    const API_KEY_STORAGE_KEY = "stackoverflow_api_key";
+    const MIN_UPVOTES_KEY = "stackoverflow_min_upvotes";
+    const CACHE_EXPIRY_KEY = "stackoverflow_cache_expiry_days";
+    const RATE_LIMIT_KEY = "stackoverflow_rate_limit_delay";
+
+    // Load settings from storage (with defaults)
+    let API_KEY = null;
+    let MIN_UPVOTES = 50;
+    let CACHE_EXPIRY_DAYS = 7;
+    let RATE_LIMIT_DELAY_MS = 150;
+    
+    try {
+        const result = await chrome.storage.sync.get([
+            API_KEY_STORAGE_KEY,
+            MIN_UPVOTES_KEY,
+            CACHE_EXPIRY_KEY,
+            RATE_LIMIT_KEY
+        ]);
+        
+        if (result[API_KEY_STORAGE_KEY]) {
+            API_KEY = result[API_KEY_STORAGE_KEY];
+            console.log('StackOverflow annotator: Using API key');
+        } else {
+            console.log('StackOverflow annotator: No API key configured, using unauthenticated requests');
+        }
+        
+        MIN_UPVOTES = result[MIN_UPVOTES_KEY] || 50;
+        CACHE_EXPIRY_DAYS = result[CACHE_EXPIRY_KEY] || 7;
+        RATE_LIMIT_DELAY_MS = result[RATE_LIMIT_KEY] || 150;
+        
+        console.log(`StackOverflow annotator: Settings - Min Upvotes: ${MIN_UPVOTES}, Cache: ${CACHE_EXPIRY_DAYS} days, Rate Limit: ${RATE_LIMIT_DELAY_MS}ms`);
+    } catch (error) {
+        console.warn('StackOverflow annotator: Error loading settings:', error);
+    }
 
     // Utility: sleep to avoid API rate limits
     const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -92,7 +121,11 @@ console.log('StackOverflow annotator loaded');
                     hasGoodAnswer = cached.hasGoodAnswer;
                     topScore = cached.topScore;
                 } else {
-                    const url = `${API_BASE}/questions/${questionId}/answers?order=desc&sort=votes&site=${SITE}`;
+                    // Build URL with API key if available
+                    let url = `${API_BASE}/questions/${questionId}/answers?order=desc&sort=votes&site=${SITE}`;
+                    if (API_KEY) {
+                        url += `&key=${API_KEY}`;
+                    }
                     const res = await fetch(url);
                     const data = await res.json();
 
@@ -118,7 +151,7 @@ console.log('StackOverflow annotator loaded');
     }
 
     // Run initially
-    processLinks();
+    // processLinks();
 
     // Watch for changes (e.g. pagination, infinite scroll)
     const observer = new MutationObserver((mutations) => {

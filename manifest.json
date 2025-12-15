@@ -3,6 +3,12 @@
   "name": "StackOverflow Good Answer Annotator",
   "version": "1.0",
   "description": "Annotates StackOverflow search results if a question has an answer with >50 upvotes.",
+  "icons": {
+    "16": "assets/icon16.png",
+    "32": "assets/icon32.png",
+    "48": "assets/icon48.png",
+    "128": "assets/icon128.png"
+  },
   "permissions": ["storage"],
   "host_permissions": [
     "https://api.stackexchange.com/*",
@@ -13,5 +19,6 @@
       "matches": ["https://www.google.com/*"],
       "js": ["content.js"]
     }
-  ]
+  ],
+  "options_page": "options.html"
 }
