@@ -89,7 +89,6 @@ console.log('StackOverflow annotator loaded');
                 const cached = await getCachedQuestion(questionId);
                 
                 if (cached) {
-                    console.log(`Cache hit for question ${questionId}`);
                     hasGoodAnswer = cached.hasGoodAnswer;
                     topScore = cached.topScore;
                 } else {
