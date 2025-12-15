@@ -4,12 +4,69 @@ console.log('StackOverflow annotator loaded');
     const API_BASE = "https://api.stackexchange.com/2.3";
     const SITE = "stackoverflow";
     const MIN_UPVOTES = 50;
+    const CACHE_EXPIRY_DAYS = 7;
+    const CACHE_KEY_PREFIX = "so_q_";
+    const RATE_LIMIT_DELAY_MS = 150;
 
     // Utility: sleep to avoid API rate limits
     const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-    // Cache to avoid re-fetching the same question
-    const questionCache = new Map();
+    // Helper functions for chrome.storage
+    async function getCachedQuestion(questionId) {
+        const key = CACHE_KEY_PREFIX + questionId;
+        const result = await chrome.storage.local.get(key);
+        
+        if (!result[key]) return null;
+        
+        const cached = result[key];
+        const now = Date.now();
+        const ageInDays = (now - cached.timestamp) / (1000 * 60 * 60 * 24);
+        
+        // Check if cache is expired (>7 days)
+        if (ageInDays > CACHE_EXPIRY_DAYS) {
+            await chrome.storage.local.remove(key);
+            return null;
+        }
+        
+        return cached;
+    }
+
+    async function setCachedQuestion(questionId, hasGoodAnswer, topScore) {
+        const key = CACHE_KEY_PREFIX + questionId;
+        await chrome.storage.local.set({
+            [key]: {
+                hasGoodAnswer,
+                topScore,
+                timestamp: Date.now()
+            }
+        });
+    }
+
+    // Clean up expired cache entries periodically
+    async function cleanupExpiredCache() {
+        const allData = await chrome.storage.local.get(null);
+        const now = Date.now();
+        const keysToRemove = [];
+        
+        for (const key in allData) {
+            if (key.startsWith(CACHE_KEY_PREFIX)) {
+                const cached = allData[key];
+                const ageInDays = (now - cached.timestamp) / (1000 * 60 * 60 * 24);
+                
+                if (ageInDays > CACHE_EXPIRY_DAYS) {
+                    keysToRemove.push(key);
+                }
+            }
+        }
+        
+        if (keysToRemove.length > 0) {
+            await chrome.storage.local.remove(keysToRemove);
+            console.log(`Cleaned up ${keysToRemove.length} expired cache entries`);
+        }
+    }
+
+    // Run cleanup on extension load
+    cleanupExpiredCache();
 
     async function processLinks() {
         // Find all Google search result links that haven't been processed yet
@@ -29,8 +86,10 @@ console.log('StackOverflow annotator loaded');
                 let hasGoodAnswer = false;
                 let topScore = 0;
 
-                if (questionCache.has(questionId)) {
-                    const cached = questionCache.get(questionId);
+                const cached = await getCachedQuestion(questionId);
+                
+                if (cached) {
+                    console.log(`Cache hit for question ${questionId}`);
                     hasGoodAnswer = cached.hasGoodAnswer;
                     topScore = cached.topScore;
                 } else {
@@ -46,9 +105,9 @@ console.log('StackOverflow annotator loaded');
                         }
                     }
 
-                    questionCache.set(questionId, { hasGoodAnswer, topScore });
+                    await setCachedQuestion(questionId, hasGoodAnswer, topScore);
                     // Be polite to the API only when actually fetching
-                    await sleep(300);
+                    await sleep(RATE_LIMIT_DELAY_MS);
                 }
 
                 annotate(result, hasGoodAnswer, topScore);
